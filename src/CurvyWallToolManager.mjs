@@ -426,6 +426,24 @@ export class CurvyWallToolManager {
 		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._onClickRight', CurvyWallToolManager._onClickRight, 'MIXED');
 		Hooks.on('requestCurvyWallsRedraw', () => this.render());
 
+		// Suppress libWrapper conflict warnings for modules that also wrap
+		// WallsLayer interaction methods (e.g. Monk's Wall Enhancement).
+		// Our MIXED wrappers intentionally skip the chain when a curvy tool
+		// is active, which is expected and not a real conflict.
+		const wrappedMethods = [
+			'foundry.canvas.layers.WallsLayer.prototype._onClickLeft',
+			'foundry.canvas.layers.WallsLayer.prototype._onDragLeftStart',
+			'foundry.canvas.layers.WallsLayer.prototype._onDragLeftMove',
+			'foundry.canvas.layers.WallsLayer.prototype._onDragLeftDrop',
+			'foundry.canvas.layers.WallsLayer.prototype._onDragLeftCancel',
+			'foundry.canvas.layers.WallsLayer.prototype._onClickRight',
+		];
+		try {
+			libWrapper.ignore_conflicts(SETTINGS.MOD_NAME, ['monks-wall-enhancement'], wrappedMethods);
+		} catch (e) {
+			console.warn('curvy-walls: failed to register libWrapper ignore_conflicts', e);
+		}
+
 		// Override the canvas-level drag-start callback to bypass select-rectangle
 		// mode when a curvy tool is active
 		const mgr = canvas.mouseInteractionManager;
