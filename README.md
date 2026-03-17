@@ -2,6 +2,15 @@
 
 ![Curvy Walls Banner](.assets/df-curvy-walls/banner.png)
 
+This is a fork of the original DF Curvy Walls module written by [Flamewave000](https://github.com/flamewave000). The original repositories can be found here:
+
+- [dragonflagon-fvtt](https://github.com/flamewave000/dragonflagon-fvtt) (DF Curvy Walls)
+- [dragonflagon-fvtt-buttons](https://github.com/flamewave000/dragonflagon-fvtt-buttons) (DF Buttons)
+
+Due to Foundry's policy on AI-supported code, we have merged the DF Buttons library into this repository. PRs have been opened to both original repos for the upstream author.
+
+---
+
 Adds Bezier Curves and Ellipse tools to the walls layer. This gives you the ability to generate wall segments along a curve quickly and easily. You can also increase or decrease the number of wall segments used along the curve.
 
 | Cubic Bezier Curve | Quadratic Bezier Curve |
