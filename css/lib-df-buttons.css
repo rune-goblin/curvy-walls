@@ -1,0 +1,93 @@
+#lib-df-buttons {
+  margin: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  border: none;
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0;
+  z-index: 70;
+}
+#lib-df-buttons #df-buttons-grip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  min-height: 36px;
+  cursor: grab;
+  color: #666;
+  font-size: 12px;
+  user-select: none;
+  pointer-events: all;
+}
+#lib-df-buttons #df-buttons-grip:hover {
+  color: #fff;
+}
+#lib-df-buttons #df-buttons-grip:active {
+  cursor: grabbing;
+}
+
+#moduleControls {
+  margin: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  border: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 0;
+}
+#moduleControls .group-tools {
+  display: inline-flex;
+}
+#moduleControls > .controls {
+  margin-right: 2px;
+}
+#moduleControls .controls {
+  display: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  justify-content: flex-start;
+}
+#moduleControls .controls.active {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+#moduleControls .control-tool {
+  width: 36px;
+  height: 36px;
+  box-sizing: content-box;
+  font-size: 24px;
+  line-height: 36px;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px #000;
+  margin: 0 10px 10px 0;
+  color: #bbb;
+  text-align: center;
+  border: 1px solid #000;
+  border-radius: 5px;
+  cursor: pointer;
+  pointer-events: all;
+}
+#moduleControls .control-tool.active,
+#moduleControls .control-tool:hover {
+  color: #fff;
+  border: 1px solid red;
+  border-bottom: 1px solid #ff6400;
+  box-shadow: 0 0 10px #ff6400;
+}
+#moduleControls .control-tool.toggle {
+  background: rgba(30, 0, 60, 0.5);
+  border: 1px solid #3b1893;
+}
+#moduleControls .control-tool.toggle.active,
+#moduleControls .control-tool.toggle:hover {
+  background: rgba(60, 0, 120, 0.5);
+  box-shadow: 0 0 10px #9b8dff;
+}
