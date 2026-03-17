@@ -263,7 +263,7 @@ export class CurvyWallToolManager {
 	 */
 	static _onDragLeftStart(wrapped, event) {
 		const self = CurvyWallToolManager.instance;
-		const point = CurvyWallToolManager._getCanvasPoint(event);
+		const point = event.interactionData.origin;
 		self.#dragOrigin = point.clone();
 		if (self._inPointMapMode) {
 			self.#currentHandler = self.#_pointMapper.checkPointForDrag(point);
@@ -425,6 +425,18 @@ export class CurvyWallToolManager {
 		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._onDragLeftCancel', CurvyWallToolManager._onDragLeftCancel, 'MIXED');
 		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._onClickRight', CurvyWallToolManager._onClickRight, 'MIXED');
 		Hooks.on('requestCurvyWallsRedraw', () => this.render());
+
+		// Override the canvas-level drag-start callback to bypass select-rectangle
+		// mode when a curvy tool is active
+		const mgr = canvas.mouseInteractionManager;
+		const originalDragStart = mgr.callbacks.dragLeftStart;
+		mgr.callbacks.dragLeftStart = (event) => {
+			if (this.mode !== Mode.None && ["select", "target"].includes(game.activeTool)) {
+				canvas.controls.select.active = false;
+				return canvas.walls._onDragLeftStart(event);
+			}
+			return originalDragStart(event);
+		};
 	}
 
 	/**
