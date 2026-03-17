@@ -1,20 +1,16 @@
-# DragonFlagon Curvy Walls
+# Curvy Walls
 
-![Forge Installs](https://img.shields.io/badge/dynamic/json?color=red&label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Fdf-curvy-walls) ![Latest Version](https://img.shields.io/badge/dynamic/json?label=Latest%20Release&prefix=v&query=package.versions%5B0%5D&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Fdf-curvy-walls) [![Foundry Hub Endorsements](https://img.shields.io/endpoint?logoColor=white&url=https%3A%2F%2Fwww.foundryvtt-hub.com%2Fwp-json%2Fhubapi%2Fv1%2Fpackage%2Fdf-curvy-walls%2Fshield%2Fendorsements)](https://www.foundryvtt-hub.com/package/df-curvy-walls/)
-
-![Curvy Walls Banner](../.assets/df-curvy-walls/banner.png)
+![Curvy Walls Banner](.assets/df-curvy-walls/banner.png)
 
 Adds Bezier Curves and Ellipse tools to the walls layer. This gives you the ability to generate wall segments along a curve quickly and easily. You can also increase or decrease the number of wall segments used along the curve.
 
 | Cubic Bezier Curve | Quadratic Bezier Curve |
 | :-: | :-: |
-| [![Cubic Curve](../.assets/df-curvy-walls/cubic.gif)](https://github.com/flamewave000/dragonflagon-fvtt/issues/18) | [![Quadratic Curve](../.assets/df-curvy-walls/quadratic.gif)](https://github.com/flamewave000/dragonflagon-fvtt/issues/19) |
+| [![Cubic Curve](.assets/df-curvy-walls/cubic.gif)](https://github.com/flamewave000/dragonflagon-fvtt/issues/18) | [![Quadratic Curve](.assets/df-curvy-walls/quadratic.gif)](https://github.com/flamewave000/dragonflagon-fvtt/issues/19) |
 
 | Ellipse With Slicing | Rectangle with Segmented Sides |
 | :-: | :-: |
-| [![Ellipse Curve](../.assets/df-curvy-walls/ellipse.gif)](https://github.com/flamewave000/dragonflagon-fvtt/issues/20) | [![Rectangle](../.assets/df-curvy-walls/rectangle.gif)](https://github.com/flamewave000/dragonflagon-fvtt/issues/20) |
-
-##### [![become a patron](../.assets/patreon-image.png)](https://www.patreon.com/bePatron?u=46113583) If you want to support me or just help me buy doggy treats! Also, you can keep up to date on what I'm working on. I will be announcing any new modules or pre-releases there for anyone wanting to help me test things out!
+| [![Ellipse Curve](.assets/df-curvy-walls/ellipse.gif)](https://github.com/flamewave000/dragonflagon-fvtt/issues/20) | [![Rectangle](.assets/df-curvy-walls/rectangle.gif)](https://github.com/flamewave000/dragonflagon-fvtt/issues/20) |
 
 ## Dismiss Current Tool Shortcut
 
@@ -40,7 +36,7 @@ You can place a perfect square by holding the <kbd>Alt</kbd> key while placing o
 
 You can have the tool grow the rectangle out from a center point by holding the <kbd>Ctrl</kbd> key while placing the ellipse tool. Useful if you know where the center of a room is and just want to grow the wall tool out from there.
 
-![Special placement of Ellipse and Rectangle tools](../.assets/df-curvy-walls/circ-rect-special-placement.gif)
+![Special placement of Ellipse and Rectangle tools](.assets/df-curvy-walls/circ-rect-special-placement.gif)
 
 ## Shape Tracing
 
@@ -48,17 +44,17 @@ For the Quadratic Bezier Curve, Ellipse, and Rectangle tools, you can now plot p
 
 To place points, simply <kbd>Left-Click</kbd> on the canvas. You can also drag an existing point by <kbd>Left-Click Drag</kbd>. To remove a point, simply <kbd>Ctrl</kbd>&nbsp;+&nbsp;<kbd>Left-Click</kbd>
 
-![Shape Tracing for Tool Placement](../.assets/df-curvy-walls/tracing.gif)
+![Shape Tracing for Tool Placement](.assets/df-curvy-walls/tracing.gif)
 
 ## Move or Place Most Recent Configuration
 
 If you have configured a tool to match that perfect circle for a tower but have a couple more identical towers to do, you can simply <kbd>Ctrl</kbd>&nbsp;+&nbsp;<kbd>Left-Click</kbd> the canvas to place the tool using the most recent configuration.
 
-![Clone recent tool config to new location](../.assets/df-curvy-walls/clone-tool.gif)
+![Clone recent tool config to new location](.assets/df-curvy-walls/clone-tool.gif)
 
 ## Uses the Current Wall Type Selection
 
-![Wall Type Selection](../.assets/df-curvy-walls/types.webp)
+![Wall Type Selection](.assets/df-curvy-walls/types.webp)
 
 ## Community Libraries Used
 
@@ -73,19 +69,11 @@ If you have configured a tool to match that perfect circle for a tower but have 
 
 You can find all the latest updates [in the CHANGELOG](./CHANGELOG.md)
 
----
----
+## Installation
 
-## Building the module
-This module requires NPM in order to be compiled as it uses TypeScript and Gulp.
-- Make sure you have NPM installed: [Get NPM](https://www.npmjs.com/get-npm)
-- Open a terminal in the module directory `/path/to/repo/dragonflagon-fvtt/df-curvy-walls/`
-- Run the following `npm install`
-- After that finishes you can simply run `npx gulp`
-- You will find the compiled module in the now available `dist/` folder.
+Install via manifest URL in Foundry VTT:
+```
+https://github.com/rune-goblin/curvy-walls/releases/latest/download/module.json
+```
 
-### Auto-deploy to local FoundryVTT
-If you want to have the compiled module output to the FoundryVTT installation instead of to the `dist/` folder, you can do the following:
-- Open the `package.json` file.
-- Change the `"devDir": "..."` value to your own installation of Foundry's module folder.
-- Run the following command `npx gulp dev` to build the project and have the result copied to your Foundry Modules folder.
+Requires [libWrapper](https://foundryvtt.com/packages/lib-wrapper).

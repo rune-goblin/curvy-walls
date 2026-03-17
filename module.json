@@ -31,14 +31,14 @@
 	"changelog":"https://github.com/rune-goblin/curvy-walls/blob/master/CHANGELOG.md",
 	"bugs":		"https://github.com/rune-goblin/curvy-walls/issues",
 	"media": [
-		{ "type": "cover", "url": "https://raw.githubusercontent.com/flamewave000/dragonflagon-fvtt/master/.assets/df-curvy-walls/cover.png" },
-		{ "type": "icon", "url": "https://raw.githubusercontent.com/flamewave000/dragonflagon-fvtt/master/.assets/logo.png" },
-		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/flamewave000/dragonflagon-fvtt/master/.assets/df-curvy-walls/cubic.gif" },
-		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/flamewave000/dragonflagon-fvtt/master/.assets/df-curvy-walls/quadratic.gif" },
-		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/flamewave000/dragonflagon-fvtt/master/.assets/df-curvy-walls/ellipse.gif" },
-		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/flamewave000/dragonflagon-fvtt/master/.assets/df-curvy-walls/rectangle.gif" },
-		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/flamewave000/dragonflagon-fvtt/master/.assets/df-curvy-walls/tracing.gif" },
-		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/flamewave000/dragonflagon-fvtt/master/.assets/df-curvy-walls/clone-tool.gif" },
-		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/flamewave000/dragonflagon-fvtt/master/.assets/df-curvy-walls/circ-rect-special-placement.gif" }
+		{ "type": "cover", "url": "https://raw.githubusercontent.com/rune-goblin/curvy-walls/master/.assets/df-curvy-walls/cover.png" },
+		{ "type": "icon", "url": "https://raw.githubusercontent.com/rune-goblin/curvy-walls/master/.assets/logo.png" },
+		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/rune-goblin/curvy-walls/master/.assets/df-curvy-walls/cubic.gif" },
+		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/rune-goblin/curvy-walls/master/.assets/df-curvy-walls/quadratic.gif" },
+		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/rune-goblin/curvy-walls/master/.assets/df-curvy-walls/ellipse.gif" },
+		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/rune-goblin/curvy-walls/master/.assets/df-curvy-walls/rectangle.gif" },
+		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/rune-goblin/curvy-walls/master/.assets/df-curvy-walls/tracing.gif" },
+		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/rune-goblin/curvy-walls/master/.assets/df-curvy-walls/clone-tool.gif" },
+		{ "type": "screenshot", "url": "https://raw.githubusercontent.com/rune-goblin/curvy-walls/master/.assets/df-curvy-walls/circ-rect-special-placement.gif" }
 	]
 }
