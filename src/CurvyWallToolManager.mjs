@@ -263,7 +263,7 @@ export class CurvyWallToolManager {
 	 */
 	static _onDragLeftStart(wrapped, event) {
 		const self = CurvyWallToolManager.instance;
-		const point = event.interactionData.origin;
+		const point = CurvyWallToolManager._getCanvasPoint(event);
 		self.#dragOrigin = point.clone();
 		if (self._inPointMapMode) {
 			self.#currentHandler = self.#_pointMapper.checkPointForDrag(point);
