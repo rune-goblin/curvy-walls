@@ -1,5 +1,7 @@
 # Curvy Walls
 
+![GitHub Downloads (all releases)](https://img.shields.io/github/downloads/rune-goblin/curvy-walls/total)
+
 ![Curvy Walls Banner](.assets/df-curvy-walls/banner.png)
 
 This is a fork of the original DF Curvy Walls module written by [Flamewave000](https://github.com/flamewave000). The original repositories can be found here:
