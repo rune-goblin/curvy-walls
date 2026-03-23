@@ -1,6 +1,6 @@
 # Curvy Walls
 
-![GitHub Downloads (all releases)](https://img.shields.io/github/downloads/rune-goblin/curvy-walls/total)
+![GitHub Downloads (all releases)](https://img.shields.io/github/downloads/rune-goblin/curvy-walls/total?include_prereleases&filter=*.zip)
 
 ![Curvy Walls Banner](.assets/df-curvy-walls/banner.png)
 
