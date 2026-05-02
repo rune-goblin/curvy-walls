@@ -29,6 +29,9 @@ MODE_NAMES[Mode.Quad] = 'bezierquad';
 MODE_NAMES[Mode.Circ] = 'beziercirc';
 MODE_NAMES[Mode.Rect] = 'bezierrect';
 
+// EDGE_SENSE_TYPES replaced WALL_SENSE_TYPES in v14; v13 still uses the old name.
+const SENSE_TYPES = CONST.EDGE_SENSE_TYPES ?? CONST.WALL_SENSE_TYPES;
+
 /**
  * Reimplementation of WallsLayer#getWallDataFromActiveTool (made private in v13).
  * Translates the active tool name into default wall data.
@@ -38,25 +41,25 @@ MODE_NAMES[Mode.Rect] = 'bezierrect';
 function getWallDataFromActiveTool(tool) {
 	if (tool === "clone" && canvas.walls._cloneType) return canvas.walls._cloneType;
 	const wallData = {
-		light: CONST.WALL_SENSE_TYPES.NORMAL,
-		sight: CONST.WALL_SENSE_TYPES.NORMAL,
-		sound: CONST.WALL_SENSE_TYPES.NORMAL,
-		move: CONST.WALL_SENSE_TYPES.NORMAL
+		light: SENSE_TYPES.NORMAL,
+		sight: SENSE_TYPES.NORMAL,
+		sound: SENSE_TYPES.NORMAL,
+		move: SENSE_TYPES.NORMAL
 	};
 	switch (tool) {
 		case "invisible":
-			wallData.sight = wallData.light = wallData.sound = CONST.WALL_SENSE_TYPES.NONE; break;
+			wallData.sight = wallData.light = wallData.sound = SENSE_TYPES.NONE; break;
 		case "terrain":
-			wallData.sight = wallData.light = wallData.sound = CONST.WALL_SENSE_TYPES.LIMITED; break;
+			wallData.sight = wallData.light = wallData.sound = SENSE_TYPES.LIMITED; break;
 		case "ethereal":
-			wallData.move = wallData.sound = CONST.WALL_SENSE_TYPES.NONE; break;
+			wallData.move = wallData.sound = SENSE_TYPES.NONE; break;
 		case "doors":
 			wallData.door = CONST.WALL_DOOR_TYPES.DOOR; break;
 		case "secret":
 			wallData.door = CONST.WALL_DOOR_TYPES.SECRET; break;
 		case "window": {
 			const d = canvas.dimensions.distance;
-			wallData.sight = wallData.light = CONST.WALL_SENSE_TYPES.PROXIMITY;
+			wallData.sight = wallData.light = SENSE_TYPES.PROXIMITY;
 			wallData.threshold = { light: 2 * d, sight: 2 * d, attenuation: true };
 			break;
 		}
@@ -71,7 +74,7 @@ class WallPool {
 	 * @returns {Wall}
 	 */
 	static acquire(wallData) {
-		const result = new Wall(new WallDocument(wallData, { parent: canvas.scene }));
+		const result = new foundry.canvas.placeables.Wall(new WallDocument(wallData, { parent: canvas.scene }));
 		wallData = structuredClone(wallData);
 		delete wallData._id;
 		result.document = foundry.utils.mergeObject(result.document, wallData);
