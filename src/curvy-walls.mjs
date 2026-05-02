@@ -1,7 +1,7 @@
 import { CurvyWallsToolBar } from './CurvyWallsToolBar.mjs';
 import { CurvyWallToolManager, Mode } from './CurvyWallToolManager.mjs';
 import SETTINGS from "../common/Settings.mjs";
-import { BezierTool } from './tools/BezierTool.mjs';
+import { BezierTool, ToolMode } from './tools/BezierTool.mjs';
 import { initButtons, setupButtons, readyButtons } from './lib-df-buttons/lib-df-buttons.mjs';
 
 const curvyWallApp = new CurvyWallsToolBar();
@@ -49,6 +49,19 @@ Hooks.once('init', function () {
 		name: 'df-curvy-walls.cancel',
 		editable: [{ key: 'Delete' }],
 		onDown: () => CurvyWallToolManager.instance.clearTool()
+	});
+	// Escape cancels the placed tool; when no tool is placed we let the event
+	// continue so Foundry's default Escape handling (main menu) still works.
+	game.keybindings.register(SETTINGS.MOD_NAME, 'cancelToolEscape', {
+		name: 'df-curvy-walls.cancel',
+		editable: [{ key: 'Escape' }],
+		precedence: CONST.KEYBINDING_PRECEDENCE.PRIORITY,
+		onDown: () => {
+			const mgr = CurvyWallToolManager.instance;
+			if (mgr.mode === Mode.None || !mgr.activeTool || mgr.activeTool.mode === ToolMode.NotPlaced) return false;
+			mgr.clearTool();
+			return true;
+		}
 	});
 	game.keybindings.register(SETTINGS.MOD_NAME, 'incrementSegments', {
 		name: 'df-curvy-walls.increment',
