@@ -447,9 +447,21 @@ export class CurvyWallToolManager {
 			console.warn('curvy-walls: failed to register libWrapper ignore_conflicts', e);
 		}
 
-		// Override the canvas-level drag-start callback to bypass select-rectangle
-		// mode when a curvy tool is active
+		// Canvas#draw builds a new interaction manager for each scene, and there is none
+		// until the first scene is drawn, so each one gets the override as it appears.
+		Hooks.on('canvasReady', () => this.#patchCanvasDragStart());
+		this.#patchCanvasDragStart();
+	}
+
+	/** Managers already overridden, so a repeat call can't wrap the override in itself. */
+	#patchedManagers = new WeakSet();
+
+	// Override the canvas-level drag-start callback to bypass select-rectangle
+	// mode when a curvy tool is active
+	#patchCanvasDragStart() {
 		const mgr = canvas.mouseInteractionManager;
+		if (!mgr || this.#patchedManagers.has(mgr)) return;
+		this.#patchedManagers.add(mgr);
 		const originalDragStart = mgr.callbacks.dragLeftStart;
 		mgr.callbacks.dragLeftStart = (event) => {
 			if (this.mode !== Mode.None && ["select", "target"].includes(game.activeTool)) {
