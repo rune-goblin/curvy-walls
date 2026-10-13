@@ -1,7 +1,10 @@
 Curvy Walls is a fork of DF Curvy Walls, the original work by flamewave000
 (https://github.com/flamewave000/dragonflagon-fvtt). RuneGoblin and Claude Code
-updated it for Foundry VTT v14 compatibility and to remove the lib-df-buttons
-dependency.
+updated it for Foundry VTT v14 compatibility and merged in flamewave000's
+lib-df-buttons library, from the same repository, to remove it as a dependency.
+
+libs/bezier.js is Bezier.js by Pomax, under the MIT license in
+libs/bezier.js.LICENSE.txt.
 
 The original license follows, unchanged.
 
