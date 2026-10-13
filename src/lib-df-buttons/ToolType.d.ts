@@ -66,11 +66,6 @@ declare interface Tool {
 declare interface ToolGroup extends Tool {
 	/** {@link Tool} collection */
 	tools?: Tool[];
-	/**
-	 * {@link Tool.name} of tool to be active. Defaults to the first tool in
-	 * the {@link tools} list.
-	 */
-	activeTool?: string;
 }
 
 /** Manages the button UI, Hooks, and User Interactions. */
@@ -79,26 +74,13 @@ declare interface ControlManager {
 	get groups(): ToolGroup[];
 	/** Name of currently active {@link ToolGroup}. */
 	get activeGroupName(): string;
-	/** Name of the currently active {@link Tool}. */
-	get activeToolName(): string;
 	/** The currently active {@link ToolGroup} object. */
 	get activeGroup(): ToolGroup;
-	/** The currently active {@link Tool} object. */
-	get activeTool(): Tool;
 	/**
 	 * Activates a {@link ToolGroup} by its unique name.
 	 * @param groupName Name of the group to be activated.
 	 */
 	activateGroupByName(groupName: string): Promise<void>;
-	/**
-	 * Activates a {@link Tool} inside the given {@link ToolGroup} via their unique names.
-	 * @param groupName Name of group that contains the {@link Tool}.
-	 * @param toolName Name of the {@link Tool} to be activated.
-	 * @param activateGroup (Default true) Also activate the {@link ToolGroup}.
-	 */
-	activateToolByName(groupName: string, toolName: string, activateGroup?: boolean): Promise<void>;
-	/** Reload the module buttons bar by rebuilding the {@link ToolGroup}s and rerendering. */
-	reloadModuleButtons(): void;
 	/** Refresh the button UI to reflect any external changes made */
 	refresh(): void;
 }

@@ -41,23 +41,12 @@ export default class ControlManager extends Application {
 
 	#initializationIncomplete = false;
 	/**@type {ToolGroup[]}*/ #_groups = [];
-	/**@type {Record<string, number>}*/ #hooksRegister = {};
 	/**@type {ToolGroup[]}*/ get groups() { return this.#_groups; }
 	/**@type {string|null}*/ activeGroupName = null;
 
-	get activeToolName() {
-		const group = this.activeGroup;
-		return group ? group.activeTool : null;
-	}
 	get activeGroup() {
 		if (!this.groups) return null;
 		return this.groups.find(c => c.name === this.activeGroupName) || null;
-	}
-	get activeTool() {
-		const group = this.activeGroup;
-		if (!group) return null;
-		const tool = group.tools.find(t => t.name === group.activeTool);
-		return tool || null;
 	}
 	/**@type {ApplicationOptions}*/
 	static get defaultOptions() {
@@ -93,13 +82,8 @@ export default class ControlManager extends Application {
 	}
 	async #completeInitialization() {
 		this.#initializationIncomplete = false;
-		this.#hooksRegister['activateGroupByName'] = Hooks.on('activateGroupByName', this.activateGroupByName.bind(this));
-		this.#hooksRegister['activateToolByName'] = Hooks.on('activateToolByName', this.activateToolByName.bind(this));
-		this.#hooksRegister['reloadModuleButtons'] = Hooks.on('reloadModuleButtons', this.reloadModuleButtons.bind(this));
-		this.#hooksRegister['refreshModuleButtons'] = Hooks.on('refreshModuleButtons', this.refresh.bind(this));
-		this.#hooksRegister['renderSceneControls'] = Hooks.on('renderSceneControls', () => { this.refresh(); this.#_applyPosition(); });
-		this.#hooksRegister['collapseSceneNavigation'] = Hooks.on('collapseSceneNavigation', this.#_applyPosition.bind(this));
-		this.#hooksRegister['renderPlayerList'] = Hooks.on('renderPlayerList', this.#_applyPosition.bind(this));
+		Hooks.on('renderSceneControls', () => { this.refresh(); this.#_applyPosition(); });
+		Hooks.on('collapseSceneNavigation', this.#_applyPosition.bind(this));
 		window.addEventListener('resize', this.#_applyPosition.bind(this));
 		for (const group of this.#_groups) {
 			// Initialize all unset fields to their defaults
@@ -113,16 +97,8 @@ export default class ControlManager extends Application {
 				this.#_invokeHandler(currentGroup?.onClick, currentGroup, false);
 			}
 			// Initialize the tools for the group
-			for (const tool of (group.tools ?? [])) {
+			for (const tool of (group.tools ?? []))
 				ControlManager.#initializeFields(tool);
-				if (!group.activeTool && !tool.toggle && !tool.button && await ControlManager.checkBoolean(tool.visible)) {
-					group.activeTool = tool.name;
-					tool.isActive = true;
-					// Notify the auto-selected tool they are now selected
-					const currentTool = this.activeTool;
-					this.#_invokeHandler(currentTool?.onClick, currentTool, false);
-				}
-			}
 		}
 	}
 
@@ -208,7 +184,6 @@ export default class ControlManager extends Application {
 	 * @param {JQuery<HTMLElement>} html
 	 */
 	activateListeners(html) {
-		html.find('.control-tool[data-group]').on('click', this.#_onClickGroup.bind(this));
 		html.find('.control-tool[data-tool]').on('click', this.#_onClickTool.bind(this));
 
 		// Drag via grip handle
@@ -263,32 +238,6 @@ export default class ControlManager extends Application {
 	}
 
 	/**
-	 * @param {JQuery.ClickEvent} event 
-	 */
-	async #_onClickGroup(event) {
-		event.preventDefault();
-		const li = event.currentTarget;
-		const groupName = li.dataset.group;
-		const group = this.groups.find(c => c.name === groupName);
-		// Handle Toggles
-		if (group.toggle) {
-			const newState = !await ControlManager.checkBoolean(group.isActive);
-			// If the group's active state is not a function, use it to store state
-			if (!(group.isActive instanceof Function))
-				group.isActive = newState;
-			this.#_invokeHandler(group.onClick, group, newState);
-			// Render the controls
-			this.refresh();
-		}
-		// Handle Buttons
-		else if (group.button) {
-			await this.#_invokeHandler(group.onClick, group);
-		}
-		// Handle Groups
-		else
-			this.activateGroupByName(groupName);
-	}
-	/**
 	 * @param {JQuery.ClickEvent} event
 	 */
 	async #_onClickTool(event) {
@@ -310,9 +259,6 @@ export default class ControlManager extends Application {
 		// Handle Buttons
 		else if (tool.button)
 			this.#_invokeHandler(tool.onClick, tool);
-		// Handle Tools
-		else
-			this.activateToolByName(this.activeGroupName, toolName, true);
 	}
 
 	/**
@@ -336,21 +282,6 @@ export default class ControlManager extends Application {
 		if (!this.element || !this.element[0]) return;
 		this.#_applyPosition();
 	}
-	/**
-	 * @param {Application.CloseOptions} [options]
-	 * @returns {Promise<void>}
-	 */
-	close(options) {
-		Hooks.off('activateGroupByName', this.#hooksRegister['activateGroupByName']);
-		Hooks.off('activateToolByName', this.#hooksRegister['activateToolByName']);
-		Hooks.off('reloadModuleButtons', this.#hooksRegister['reloadModuleButtons']);
-		Hooks.off('renderSceneControls', this.#hooksRegister['renderSceneControls']);
-		Hooks.off('collapseSceneNavigation', this.#hooksRegister['collapseSceneNavigation']);
-		Hooks.off('renderPlayerList', this.#hooksRegister['renderPlayerList']);
-		window.removeEventListener('resize', this.#_applyPosition);
-		return super.close(options);
-	}
-
 	#_applyPosition() {
 		const element = this._element;
 		if (!element || element.length === 0) return;
@@ -397,61 +328,5 @@ export default class ControlManager extends Application {
 		await this.#_invokeHandler(group.onClick, group, true);
 		this.refresh();
 		Hooks.callAll("toolGroupActivated", this, group);
-	}
-	/**
-	 * @param {string} groupName
-	 * @param {string} toolName
-	 * @param {boolean} [activateGroup]
-	 * @returns 
-	 */
-	async activateToolByName(groupName, toolName, activateGroup = true) {
-		const group = this.groups.find(x => x.name === groupName);
-		if (!group) {
-			console.warn(`ControlManager::activateToolByName > Attempted to activate ToolGroup with non-existant name '${groupName}'`);
-			return;
-		}
-		const tool = group.tools.find(x => x.name === toolName);
-		if (!tool) {
-			console.warn(`ControlManager::activateToolByName > Attempted to activate Tool with non-existant name '${toolName}'`);
-			return;
-		}
-		if (tool.button || tool.toggle) {
-			console.warn(`ControlManager::activateToolByName > Attempted to activate Tool that is either a button or toggle`);
-			return;
-		}
-		if (group.activeTool === toolName) {
-			this.refresh();
-			return;
-		}
-		const prevTool = group.tools.find(x => x.name === group.activeTool);
-		group.activeTool = toolName;
-		// Deactivate previous group
-		if (prevTool) {
-			prevTool.isActive = false;
-			await this.#_invokeHandler(prevTool.onClick, prevTool, false);
-		}
-		// Activate new group
-		tool.isActive = true;
-		await this.#_invokeHandler(tool.onClick, tool, true);
-		if (activateGroup && this.activeGroupName !== groupName) {
-			this.activateGroupByName(groupName);
-		}
-		else if (this.activeGroupName === groupName) {
-			this.refresh();
-		}
-		Hooks.callAll("toolActivated", this, group, tool);
-	}
-	reloadModuleButtons() {
-		Hooks.callAll("moduleButtonsReloading", this);
-		// Notify the current group that they are now disabled before we rebuild
-		const currentGroup = this.activeGroup;
-		this.#_invokeHandler(currentGroup?.onClick, currentGroup, false);
-		// Notify all selected tools of being deactivated
-		for (const group of this.#_groups) {
-			const currentTool = group.activeTool && group.tools ? group.tools.find(x => x.name === group.activeTool) : undefined;
-			this.#_invokeHandler(currentTool?.onClick, currentTool, false);
-		}
-		ui.moduleControls.initialize();
-		ui.moduleControls.render();
 	}
 }
