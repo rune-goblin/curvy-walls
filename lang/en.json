@@ -9,6 +9,8 @@
 		"decrement": "Decrease Segments",
 		"apply": "Apply curve walls to layer",
 		"cancel": "Clear Tool",
+		"toolbar": "Curvy Walls",
+		"toolbar_close": "Close Curvy Walls",
 		"cubic_lock_handles": "Couple curve controls to line ends",
 		"ellipse_close": "Close circle when sliced",
 		"ellipse_finish_slice": "Add short wall to slice point",

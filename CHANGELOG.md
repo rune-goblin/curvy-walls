@@ -1,5 +1,9 @@
 # Curvy Walls
 
+## Release 1.2.6 (2026-10-14)
+- **NEW:** The wall controls have a Curvy Walls toggle that opens and closes the Curvy Walls toolbar, and the toolbar has a close button. The choice persists across reloads.
+- **UPDATE:** Closing the toolbar deselects the active shape. Clicks and drags on the walls layer then go to Foundry and to other modules, such as the freehand tool of Monk's Wall Enhancement.
+
 ## Release 1.2.5 (2026-10-13)
 - **FIX:** A wall stays visible after one of its endpoints is dragged while a curvy tool is selected. Curvy Walls removes its own preview objects and leaves Foundry's drag preview in place.
 - **FIX:** A drag that starts off a placed tool's handles stays with Curvy Walls from start to drop, so the freehand tool of Monk's Wall Enhancement stays idle during it.

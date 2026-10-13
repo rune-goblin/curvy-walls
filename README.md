@@ -24,6 +24,10 @@ Adds Bezier Curves and Ellipse tools to the walls layer. This gives you the abil
 | :-: | :-: |
 | [![Ellipse Curve](.assets/df-curvy-walls/ellipse.gif)](https://github.com/flamewave000/dragonflagon-fvtt/issues/20) | [![Rectangle](.assets/df-curvy-walls/rectangle.gif)](https://github.com/flamewave000/dragonflagon-fvtt/issues/20) |
 
+## Toolbar Toggle
+
+The Curvy Walls toggle in the wall controls opens and closes the Curvy Walls toolbar. The X at the top of the toolbar closes it too. Closing the toolbar deselects the active shape, so other wall tools, such as the freehand tool of Monk's Wall Enhancement, receive clicks and drags again.
+
 ## Dismiss Current Tool Shortcut
 
 You can quickly remove and disable the current tool by <kbd>Ctrl</kbd>&nbsp;+&nbsp;<kbd>Right-Click</kbd>ing anywhere on the screen. This is useful if you've just placed a curved wall and want to jump back into making regular walls again without having to go and click the tool's toggle button.

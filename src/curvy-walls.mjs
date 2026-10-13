@@ -12,6 +12,12 @@ Hooks.once('init', function () {
 		config: false,
 		default: null,
 	});
+	SETTINGS.register(CurvyWallsToolBar.PREF_OPEN, {
+		scope: 'client',
+		type: Boolean,
+		config: false,
+		default: true,
+	});
 	SETTINGS.register(CurvyWallsToolBar.PREF_PRESERVE, {
 		scope: 'world',
 		type: Boolean,
@@ -97,11 +103,33 @@ Hooks.once("ready", function () {
 	syncToolBar(ui.controls);
 });
 
+Hooks.on('getSceneControlButtons', (/**@type {Record<string, SceneControl>}*/controls) => {
+	const tools = controls.walls?.tools;
+	if (!tools) return;
+	tools[CurvyWallsToolBar.SCENE_TOOL] = {
+		name: CurvyWallsToolBar.SCENE_TOOL,
+		title: 'df-curvy-walls.toolbar',
+		icon: 'fa-solid fa-bezier-curve',
+		toggle: true,
+		active: SETTINGS.get(CurvyWallsToolBar.PREF_OPEN),
+		order: (tools.snap?.order ?? Object.keys(tools).length) + 0.5,
+		onChange: (_event, active) => {
+			SETTINGS.set(CurvyWallsToolBar.PREF_OPEN, active);
+			syncToolBar(ui.controls);
+		}
+	};
+});
+
 /**@param {SceneControls} controls*/
 function syncToolBar(controls) {
 	if (!game.user.isGM) return;
 	if (controls.control?.name !== 'walls') {
 		curvyWallApp.close();
+		return;
+	}
+	if (controls.tools[CurvyWallsToolBar.SCENE_TOOL]?.active === false) {
+		// A selected shape keeps every walls-layer drag, and the closed toolbar has no button to deselect it.
+		curvyWallApp.close(false);
 		return;
 	}
 	curvyWallApp.render();

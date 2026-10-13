@@ -24,6 +24,8 @@ function modeToggle(title, icon, mode) {
 export class CurvyWallsToolBar {
 	/** @readonly */static PREF_PRESERVE = 'preserve-tool';
 	/** @readonly */static PREF_POSITION = 'toolbar-pos';
+	/** @readonly */static PREF_OPEN = 'toolbar-open';
+	/** @readonly */static SCENE_TOOL = 'curvywalls';
 
 	/**@type {Record<string, CurvyWallControl>}*/#_tools = {
 		beziercube: modeToggle('df-curvy-walls.cubic', 'fas fa-bezier-curve', Mode.Cube),
@@ -74,6 +76,8 @@ export class CurvyWallsToolBar {
 	};
 
 	#_element = document.createElement('div');
+	#_rail = document.createElement('div');
+	#_close = document.createElement('div');
 	#_grip = document.createElement('div');
 	/**@type {Record<string, CurvyWallControl>}*/#_controls = {};
 
@@ -85,6 +89,11 @@ export class CurvyWallsToolBar {
 		this.#_grip.innerHTML = '<i class="fas fa-grip-vertical"></i>';
 		this.#_grip.addEventListener('mousedown', this.#_onGripDown.bind(this));
 		this.#_grip.addEventListener('dblclick', this.#_resetPosition.bind(this));
+		this.#_close.className = 'close';
+		this.#_close.innerHTML = '<i class="fas fa-times"></i>';
+		this.#_close.addEventListener('click', () => ui.controls.activate({ toggles: { [CurvyWallsToolBar.SCENE_TOOL]: false } }));
+		this.#_rail.className = 'rail';
+		this.#_rail.append(this.#_close, this.#_grip);
 		window.addEventListener('resize', () => {
 			if (this.#_element.isConnected) this.#_applyPosition();
 		});
@@ -106,7 +115,8 @@ export class CurvyWallsToolBar {
 				: { pointconstruct });
 		}
 		this.#_controls = Object.assign({}, ...columns);
-		this.#_element.replaceChildren(this.#_grip, ...columns.map(column => {
+		this.#_close.title = game.i18n.localize('df-curvy-walls.toolbar_close');
+		this.#_element.replaceChildren(this.#_rail, ...columns.map(column => {
 			const list = document.createElement('ol');
 			list.append(...Object.entries(column).map(([name, control]) => this.#_createButton(name, control)));
 			return list;
@@ -115,9 +125,10 @@ export class CurvyWallsToolBar {
 		this.#_applyPosition();
 	}
 
-	close() {
+	/**@param {boolean} [preserveTool]*/
+	close(preserveTool = SETTINGS.get(CurvyWallsToolBar.PREF_PRESERVE)) {
 		this.#_element.remove();
-		if (!SETTINGS.get(CurvyWallsToolBar.PREF_PRESERVE))
+		if (!preserveTool)
 			CurvyWallToolManager.instance.mode = Mode.None;
 	}
 

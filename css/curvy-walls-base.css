@@ -5,19 +5,39 @@
 	flex-flow: row nowrap;
 	align-items: flex-start;
 }
+#curvy-walls-toolbar .rail {
+	display: flex;
+	flex-flow: column nowrap;
+	gap: 4px;
+	margin-right: 6px;
+}
+#curvy-walls-toolbar .close,
 #curvy-walls-toolbar .grip {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 12px;
-	min-height: 36px;
-	margin-right: 2px;
-	cursor: grab;
-	color: #666;
-	font-size: 12px;
+	width: 22px;
+	box-sizing: border-box;
+	background: rgba(0, 0, 0, 0.5);
+	border: 1px solid #000;
+	border-radius: 3px;
+	color: #BBB;
 }
+#curvy-walls-toolbar .close:hover,
 #curvy-walls-toolbar .grip:hover {
 	color: #FFF;
+	border-color: #999;
+}
+#curvy-walls-toolbar .close {
+	height: 22px;
+	cursor: pointer;
+	font-size: 14px;
+}
+/* The rail ends level with the second button: 22px close + 4px gap + 58px grip = 38px + 8px + 38px. */
+#curvy-walls-toolbar .grip {
+	height: 58px;
+	cursor: grab;
+	font-size: 16px;
 }
 #curvy-walls-toolbar .grip:active {
 	cursor: grabbing;

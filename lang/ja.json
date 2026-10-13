@@ -10,6 +10,8 @@
 		"decrement": "セグメントを減らす",
 		"apply": "レイヤーに壁を適用",
 		"cancel": "編集ツールクリア",
+		"toolbar": "Curvy Walls",
+		"toolbar_close": "Curvy Wallsを閉じる",
 		"cubic_lock_handles": "線の終端とハンドルを固定",
 		"ellipse_close": "開口部を閉じる",
 		"ellipse_finish_slice": "スライス位置に短い壁を追加",

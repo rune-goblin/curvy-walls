@@ -13,6 +13,8 @@
 		"decrement": "Disminuir número de segmentos",
 		"apply": "Añadir curva a la capa",
 		"cancel": "Descartar curva",
+		"toolbar": "Curvy Walls",
+		"toolbar_close": "Cerrar Curvy Walls",
 		"cubic_lock_handles": "Ajustar controles de curva a extremos de línea",
 		"ellipse_close": "Cerrar círculo al recortar",
 		"ellipse_finish_slice": "Completar con un segmento adicional para ajustar al ángulo de corte",
