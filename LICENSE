@@ -1,3 +1,12 @@
+Curvy Walls is a fork of DF Curvy Walls, the original work by flamewave000
+(https://github.com/flamewave000/dragonflagon-fvtt). RuneGoblin and Claude Code
+updated it for Foundry VTT v14 compatibility and to remove the lib-df-buttons
+dependency.
+
+The original license follows, unchanged.
+
+--------------------------------------------------------------------------------
+
 BSD 3-Clause License
 
 Copyright (c) 2021, flamewave000
