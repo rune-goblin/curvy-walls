@@ -63,7 +63,7 @@ export default class RectangleTool extends BezierTool {
 		return b;
 	}
 	/**@type {PIXI.Rectangle}*/
-	get rect() { return new PIXI.Rectangle(this.lineA.x, this.lineA.y, this.lineB.x, this.lineB.y); }
+	get rect() { return this.bounds.getRectangle(PIXI.Rectangle.EMPTY); }
 
 	constructor() {
 		super(1);
@@ -96,7 +96,7 @@ export default class RectangleTool extends BezierTool {
 	 * @returns {PreciseText}
 	 */
 	static #createLineLabel(text) {
-		const result = new PreciseText(text, RectangleTool.#STYLE);
+		const result = new foundry.canvas.containers.PreciseText(text, RectangleTool.#STYLE);
 		result.anchor.set(0.5, 0.5);
 		return result;
 	}

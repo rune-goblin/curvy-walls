@@ -46,8 +46,8 @@ export default class CircleTool extends BezierTool {
 		return new PIXI.Polygon([
 			bounds.minX, bounds.minY,
 			bounds.maxX, bounds.minY,
-			bounds.minX, bounds.maxY,
-			bounds.maxX, bounds.maxY]);
+			bounds.maxX, bounds.maxY,
+			bounds.minX, bounds.maxY]);
 	}
 
 	/**@type {Record<string, CurvyWallControl>}*/

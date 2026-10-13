@@ -25,7 +25,8 @@ class InitializerIH extends InitializerInputHandler {
 		super.move(origin, destination, event);
 		let dx = this.tool.lineB.x - this.tool.lineA.x;
 		let dy = this.tool.lineB.y - this.tool.lineA.y;
-		const length = Math.sqrt((dx * dx) + (dy * dy));
+		// Both ends can snap to the same point, and dividing by zero would turn the controls into NaN.
+		const length = Math.sqrt((dx * dx) + (dy * dy)) || 1;
 		dx /= length;
 		dy /= length;
 		const barLength = length * (2 / 3);
