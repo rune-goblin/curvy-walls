@@ -1,5 +1,13 @@
 # Curvy Walls
 
+## Release 1.2.5 (2026-10-13)
+- **FIX:** A wall stays visible after one of its endpoints is dragged while a curvy tool is selected. Curvy Walls removes its own preview objects and leaves Foundry's drag preview in place.
+- **FIX:** A drag that starts off a placed tool's handles stays with Curvy Walls from start to drop, so the freehand tool of Monk's Wall Enhancement stays idle during it.
+- **FIX:** Handles drag at every zoom level. Curvy Walls tests for a handle where the mouse went down. Foundry reports a drag 10 screen pixels later, which put the pointer past the handle at 100% zoom and below.
+- **UPDATE:** The libWrapper conflict suppression for Monk's Wall Enhancement covers every walls-layer method Curvy Walls wraps.
+- **UPDATE:** Curvy Walls draws its own toolbar. This release removes the embedded DF Buttons library, its `getModuleToolGroups` hooks and `ui.moduleControls`.
+- **UPDATE:** Removed the `String.prototype.localize` extension and the unused `position` setting.
+
 ## Release 1.2.4 (2026-10-13)
 - **FIX:** Handles drag again on Foundry v14 once a tool is placed, including handles that sit on an existing wall.
 - **FIX:** Walls take their type from the Foundry v14 wall palette, and new walls keep their thresholds and levels.

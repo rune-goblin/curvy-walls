@@ -32,7 +32,6 @@ jobs:
             -x ".gitignore" \
             -x ".DS_Store" \
             -x ".claude/*" \
-            -x "*.scss" \
             -x "*.zip"
 
       - name: Create release

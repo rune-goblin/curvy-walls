@@ -199,8 +199,8 @@ export class CurvyWallToolManager {
 			return;
 		}
 		this.#_activeTool.clearTool();
+		this.#detachPreview();
 		this.#walls = [];
-		this.#wallsLayer.preview.removeChildren();
 		this.render();
 	}
 
@@ -261,7 +261,7 @@ export class CurvyWallToolManager {
 	static _canDragLeftStart(wrapped, user, event) {
 		const self = CurvyWallToolManager.instance;
 		// v14 refuses any drag while the preview container has children, and the placed tool lives there.
-		if (self.mode != Mode.None && self.#wallsLayer.preview.children.length) return true;
+		if (self.mode != Mode.None && self.#graphicsContext.parent) return true;
 		return wrapped(user, event);
 	}
 	/**
@@ -272,16 +272,18 @@ export class CurvyWallToolManager {
 	static _onDragLeftStart(wrapped, event) {
 		const self = CurvyWallToolManager.instance;
 		const point = CurvyWallToolManager._getCanvasPoint(event);
-		self.#dragOrigin = point.clone();
+		// Foundry reports a drag once the pointer is 10 screen pixels from the press, which is clear of a handle at low zoom.
+		const origin = event.interactionData?.origin ?? point;
+		self.#dragOrigin = new PIXI.Point(origin.x, origin.y);
 		if (self._inPointMapMode) {
-			self.#currentHandler = self.#_pointMapper.checkPointForDrag(point);
+			self.#currentHandler = self.#_pointMapper.checkPointForDrag(self.#dragOrigin);
 			if (self.#currentHandler == null) return;
 			self.#currentHandler.start(self.#dragOrigin, point, event);
 			self.render();
 			return;
 		}
 		if (self.mode == Mode.None || self.activeTool == null) return wrapped(event);
-		self.#currentHandler = self.activeTool.checkPointForDrag(point);
+		self.#currentHandler = self.activeTool.checkPointForDrag(self.#dragOrigin);
 		if (self.#currentHandler == null) return;
 		self.#currentHandler.start(self.#dragOrigin, point, event);
 		self.render();
@@ -293,7 +295,9 @@ export class CurvyWallToolManager {
 	 */
 	static _onDragLeftMove(wrapped, event) {
 		const self = CurvyWallToolManager.instance;
-		if (self.mode == Mode.None || !self.#currentHandler) return wrapped(event);
+		if (self.mode == Mode.None) return wrapped(event);
+		// The drag start was kept from the chain, so nothing further down has a drag to continue.
+		if (!self.#currentHandler) return;
 		const nativeEvent = CurvyWallToolManager._getNativeEvent(event);
 		if (self.activeTool.startedWithCtrlHeld && !nativeEvent.ctrlKey) {
 			self.activeTool.startedWithCtrlHeld = false;
@@ -309,7 +313,8 @@ export class CurvyWallToolManager {
 	 */
 	static _onDragLeftDrop(wrapped, event) {
 		const self = CurvyWallToolManager.instance;
-		if (self.mode == Mode.None || !self.#currentHandler) return wrapped(event);
+		if (self.mode == Mode.None) return wrapped(event);
+		if (!self.#currentHandler) return;
 		self.activeTool.startedWithCtrlHeld = false;
 		const destination = CurvyWallToolManager._getCanvasPoint(event);
 		self.#currentHandler.stop(self.#dragOrigin, destination, event);
@@ -352,12 +357,17 @@ export class CurvyWallToolManager {
 
 	// Existing walls sit under the preview and would take pointer events meant for the handles.
 	#syncWallInteraction() {
-		const { objects, preview } = canvas.walls;
-		if (objects) objects.interactiveChildren = !preview?.children.length;
+		const { objects } = canvas.walls;
+		if (objects) objects.interactiveChildren = !this.#graphicsContext.parent;
+	}
+
+	// Foundry keeps the clone of a dragged wall in the same container and hides the original until it ends that clone.
+	#detachPreview() {
+		this.#wallsLayer.preview?.removeChild(...this.#walls, this.#graphicsContext);
 	}
 
 	#drawPreview() {
-		this.#wallsLayer.preview.removeChildren();
+		this.#detachPreview();
 		if (this.currentlyMappingPoints) {
 			this.#_pointMapper.clearContext(this.#graphicsContext);
 			this.#graphicsContext.clear();
@@ -422,27 +432,20 @@ export class CurvyWallToolManager {
 
 	patchWallsLayer() {
 		this.#wallsLayer = canvas.walls;
-		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._onClickLeft', CurvyWallToolManager._onClickLeft, 'MIXED');
-		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._canDragLeftStart', CurvyWallToolManager._canDragLeftStart, 'MIXED');
-		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._onDragLeftStart', CurvyWallToolManager._onDragLeftStart, 'MIXED');
-		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._onDragLeftMove', CurvyWallToolManager._onDragLeftMove, 'MIXED');
-		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._onDragLeftDrop', CurvyWallToolManager._onDragLeftDrop, 'MIXED');
-		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._onDragLeftCancel', CurvyWallToolManager._onDragLeftCancel, 'MIXED');
-		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._onClickRight', CurvyWallToolManager._onClickRight, 'MIXED');
+		const wrappedMethods = [
+			'_onClickLeft', '_canDragLeftStart', '_onDragLeftStart', '_onDragLeftMove',
+			'_onDragLeftDrop', '_onDragLeftCancel', '_onClickRight',
+		].map(name => {
+			const target = `foundry.canvas.layers.WallsLayer.prototype.${name}`;
+			libWrapper.register(SETTINGS.MOD_NAME, target, CurvyWallToolManager[name], 'MIXED');
+			return target;
+		});
 		Hooks.on('requestCurvyWallsRedraw', () => this.render());
 
 		// Suppress libWrapper conflict warnings for modules that also wrap
 		// WallsLayer interaction methods (e.g. Monk's Wall Enhancement).
 		// Our MIXED wrappers intentionally skip the chain when a curvy tool
 		// is active, which is expected and not a real conflict.
-		const wrappedMethods = [
-			'foundry.canvas.layers.WallsLayer.prototype._onClickLeft',
-			'foundry.canvas.layers.WallsLayer.prototype._onDragLeftStart',
-			'foundry.canvas.layers.WallsLayer.prototype._onDragLeftMove',
-			'foundry.canvas.layers.WallsLayer.prototype._onDragLeftDrop',
-			'foundry.canvas.layers.WallsLayer.prototype._onDragLeftCancel',
-			'foundry.canvas.layers.WallsLayer.prototype._onClickRight',
-		];
 		try {
 			libWrapper.ignore_conflicts(SETTINGS.MOD_NAME, ['monks-wall-enhancement'], wrappedMethods);
 		} catch (e) {

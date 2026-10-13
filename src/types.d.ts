@@ -28,22 +28,6 @@ declare interface CurvyWallControl {
 	onClick: (enabled?: boolean) => void;
 }
 
-declare interface CurvyWallControlUI {
-	name: string;
-	title: string;
-	icon: string;
-	toggleable?: boolean;
-	class?: string;
-	isActive?: boolean;
-}
-
-
-declare interface CurvyWallsToolsOptions {
-	tools: CurvyWallControlUI[];
-	general: CurvyWallControlUI[];
-	controls: CurvyWallControlUI[];
-}
-
 declare interface WallData {
 	c: [number, number, number, number]
 	light: number

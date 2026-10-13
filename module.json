@@ -18,7 +18,7 @@
 		]
 	},
 	"esmodules": ["src/curvy-walls.mjs"],
-	"styles": ["css/curvy-walls-base.css", "css/curvy-walls-icons.css", "css/lib-df-buttons.css"],
+	"styles": ["css/curvy-walls-base.css", "css/curvy-walls-icons.css"],
 	"languages": [
 		{ "lang": "en", "path": "lang/en.json", "name": "English" },
 		{ "lang": "fr", "path": "lang/fr.json", "name": "French" },

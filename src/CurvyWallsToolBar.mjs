@@ -3,93 +3,33 @@ import { CurvyWallToolManager, Mode } from './CurvyWallToolManager.mjs';
 import SETTINGS from "../common/Settings.mjs";
 import { ToolMode } from './tools/BezierTool.mjs';
 
-export class CurvyWallsToolBar extends Application {
-	static init() {
-		Hooks.on('getModuleToolGroups', (/**@type {ControlManager}*/controlManager, /**@type {ToolGroup[]}*/groups) => {
-			groups.push(
-				{
-					name: SETTINGS.MOD_NAME,
-					icon: '<i class="fas fa-bezier-curve"></i>',
-					title: 'Curvy Walls Tools',
-					visible: () => {
-						return (ui.controls.control?.name ?? ui.controls.activeControl) === 'walls';
-					},
-					tools: [
-						{
-							name: 'cubic',
-							title: "df-curvy-walls.cubic",
-							icon: '<i class="fas fa-bezier-curve"></i>',
-							toggle: true,
-							isActive: () => CurvyWallToolManager.instance.mode === Mode.Cube,
-							onClick: active => { CurvyWallToolManager.instance.mode = active ? Mode.Cube : Mode.None; }
-						},
-						{
-							name: 'quadratic',
-							title: "df-curvy-walls.quadratic",
-							icon: '<i class="fas fa-project-diagram"></i>',
-							toggle: true,
-							isActive: () => CurvyWallToolManager.instance.mode === Mode.Quad,
-							onClick: active => { CurvyWallToolManager.instance.mode = active ? Mode.Quad : Mode.None; }
-						},
-						{
-							name: 'circle',
-							title: "df-curvy-walls.circle",
-							icon: '<i class="fas fa-circle"></i>',
-							toggle: true,
-							isActive: () => CurvyWallToolManager.instance.mode === Mode.Circ,
-							onClick: active => { CurvyWallToolManager.instance.mode = active ? Mode.Circ : Mode.None; }
-						},
-						{
-							name: 'rectangle',
-							title: "df-curvy-walls.rectangle",
-							icon: '<i class="fas fa-vector-square"></i>',
-							toggle: true,
-							isActive: () => CurvyWallToolManager.instance.mode === Mode.Rect,
-							onClick: active => { CurvyWallToolManager.instance.mode = active ? Mode.Rect : Mode.None; }
-						}
-					]
-				}
-			);
-		});
-	}
+const DEFAULT_POSITION = { left: 110, top: 73 };
 
+/**
+ * @param {string} title
+ * @param {string} icon
+ * @param {Mode} mode
+ * @returns {CurvyWallControl}
+ */
+function modeToggle(title, icon, mode) {
+	return {
+		title,
+		icon,
+		toggleable: true,
+		isActive: () => CurvyWallToolManager.instance.mode == mode,
+		onClick: enabled => { CurvyWallToolManager.instance.mode = enabled ? mode : Mode.None; }
+	};
+}
+
+export class CurvyWallsToolBar {
 	/** @readonly */static PREF_PRESERVE = 'preserve-tool';
-
-	/**@type {ApplicationOptions}*/
-	static get defaultOptions() {
-		return foundry.utils.mergeObject(super.defaultOptions, {
-			popOut: false,
-			template: 'modules/curvy-walls/templates/curvy-walls-controls.hbs'
-		});
-	}
-
-	#_closing = false;
+	/** @readonly */static PREF_POSITION = 'toolbar-pos';
 
 	/**@type {Record<string, CurvyWallControl>}*/#_tools = {
-		beziercube: {
-			title: "df-curvy-walls.cubic",
-			icon: "fas fa-bezier-curve",
-			isActive: function () { return CurvyWallToolManager.instance.mode == Mode.Cube; },
-			onClick: function () { return CurvyWallToolManager.instance.mode = this.isActive() ? Mode.None : Mode.Cube; }
-		},
-		bezierquad: {
-			title: "df-curvy-walls.quadratic",
-			icon: "fas fa-project-diagram",
-			isActive: function () { return CurvyWallToolManager.instance.mode == Mode.Quad; },
-			onClick: function () { return CurvyWallToolManager.instance.mode = this.isActive() ? Mode.None : Mode.Quad; }
-		},
-		beziercirc: {
-			title: "df-curvy-walls.circle",
-			icon: "fas fa-circle",
-			isActive: function () { return CurvyWallToolManager.instance.mode == Mode.Circ; },
-			onClick: function () { return CurvyWallToolManager.instance.mode = this.isActive() ? Mode.None : Mode.Circ; }
-		},
-		bezierrect: {
-			title: "df-curvy-walls.rectangle",
-			icon: "fas fa-vector-square",
-			isActive: function () { return CurvyWallToolManager.instance.mode == Mode.Rect; },
-			onClick: function () { return CurvyWallToolManager.instance.mode = this.isActive() ? Mode.None : Mode.Rect; }
-		}
+		beziercube: modeToggle('df-curvy-walls.cubic', 'fas fa-bezier-curve', Mode.Cube),
+		bezierquad: modeToggle('df-curvy-walls.quadratic', 'fas fa-project-diagram', Mode.Quad),
+		beziercirc: modeToggle('df-curvy-walls.circle', 'fas fa-circle', Mode.Circ),
+		bezierrect: modeToggle('df-curvy-walls.rectangle', 'fas fa-vector-square', Mode.Rect)
 	};
 	/**@type {Record<string, CurvyWallControl>}*/
 	#_generalControls = {
@@ -123,10 +63,7 @@ export class CurvyWallsToolBar extends Application {
 			icon: 'fas fa-route',
 			toggleable: true,
 			isActive: () => CurvyWallToolManager.instance.currentlyMappingPoints,
-			onClick: () => {
-				CurvyWallToolManager.instance.togglePointMapping();
-				this.render(false);
-			}
+			onClick: () => CurvyWallToolManager.instance.togglePointMapping()
 		},
 		applyplacement: {
 			title: 'df-curvy-walls.pointmapapply',
@@ -136,123 +73,112 @@ export class CurvyWallsToolBar extends Application {
 		}
 	};
 
-	/**
-	 * @param {ApplicationOptions} [options]
-	 */
-	constructor(options) {
-		super(options);
+	#_element = document.createElement('div');
+	#_grip = document.createElement('div');
+	/**@type {Record<string, CurvyWallControl>}*/#_controls = {};
+
+	constructor() {
+		this.#_element.id = 'curvy-walls-toolbar';
+		this.#_element.addEventListener('click', this.#_onClick.bind(this));
+		this.#_grip.className = 'grip';
+		this.#_grip.title = 'Drag to move (double-click to reset)';
+		this.#_grip.innerHTML = '<i class="fas fa-grip-vertical"></i>';
+		this.#_grip.addEventListener('mousedown', this.#_onGripDown.bind(this));
+		this.#_grip.addEventListener('dblclick', this.#_resetPosition.bind(this));
+		window.addEventListener('resize', () => {
+			if (this.#_element.isConnected) this.#_applyPosition();
+		});
 		CurvyWallToolManager.instance.setModeListener(() => {
-			if (this.#_closing) {
-				this.#_closing = false;
-				return;
-			}
-			this.render(false);
+			if (this.#_element.isConnected) this.render();
 		});
 	}
 
-	/**
-	 * @returns {CurvyWallsToolsOptions}
-	 */
-	getData() {
-		const toolIsPlaced = CurvyWallToolManager.instance.mode != Mode.None && CurvyWallToolManager.instance.activeTool.mode != ToolMode.NotPlaced;
-		const toolControls = CurvyWallToolManager.instance.activeTool?.getTools();
-		/**@type {CurvyWallControlUI[]}*/
-		const placementControls = [{
-			name: 'pointconstruct',
-			title: this.#_placementControls.pointconstruct.title,
-			icon: this.#_placementControls.pointconstruct.icon,
-			class: this.#_placementControls.pointconstruct.class,
-			toggleable: true,
-			isActive: this.#_placementControls.pointconstruct.isActive()
-		}];
-		if (CurvyWallToolManager.instance.currentlyMappingPoints && CurvyWallToolManager.instance.canApplyPointMapping) {
-			placementControls.push({
-				name: 'applyplacement',
-				title: this.#_placementControls.applyplacement.title,
-				icon: this.#_placementControls.applyplacement.icon,
-				class: this.#_placementControls.applyplacement.class
-			});
+	render() {
+		const manager = CurvyWallToolManager.instance;
+		const toolIsPlaced = manager.mode != Mode.None && manager.activeTool.mode != ToolMode.NotPlaced;
+		const columns = [this.#_tools];
+		if (toolIsPlaced)
+			columns.push(this.#_generalControls, manager.activeTool.getTools());
+		else if ([Mode.Quad, Mode.Circ, Mode.Rect].includes(manager.mode)) {
+			const { pointconstruct, applyplacement } = this.#_placementControls;
+			columns.push(manager.currentlyMappingPoints && manager.canApplyPointMapping
+				? { pointconstruct, applyplacement }
+				: { pointconstruct });
 		}
-
-		/**@type {CurvyWallsToolsOptions}*/
-		const data = {
-			tools: Object.keys(this.#_tools).map(it => {
-				return {
-					name: it,
-					title: this.#_tools[it].title,
-					icon: this.#_tools[it].icon,
-					toggleable: true,
-					isActive: this.#_tools[it].isActive()
-				};
-			}),
-			general: toolIsPlaced ? Object.keys(this.#_generalControls).map(it => {
-				return {
-					name: it,
-					title: this.#_generalControls[it].title,
-					icon: this.#_generalControls[it].icon,
-					class: this.#_generalControls[it].class
-				};
-			}) : [Mode.Quad, Mode.Circ, Mode.Rect].includes(CurvyWallToolManager.instance.mode) ? placementControls : [],
-			controls: toolIsPlaced && !!toolControls ? Object.keys(toolControls).map(it => {
-				return {
-					name: it,
-					title: toolControls[it].title,
-					icon: toolControls[it].icon,
-					class: toolControls[it].class,
-					toggleable: toolControls[it].toggleable,
-					isActive: toolControls[it].toggleable ? toolControls[it].isActive() : undefined
-				};
-			}) : []
-		};
-
-		return data;
+		this.#_controls = Object.assign({}, ...columns);
+		this.#_element.replaceChildren(this.#_grip, ...columns.map(column => {
+			const list = document.createElement('ol');
+			list.append(...Object.entries(column).map(([name, control]) => this.#_createButton(name, control)));
+			return list;
+		}));
+		if (!this.#_element.isConnected) document.body.append(this.#_element);
+		this.#_applyPosition();
 	}
 
-	/**
-	 * @param {JQuery<HTMLElement>} html
-	 */
-	activateListeners(html) {
-		// Append inside #lib-df-buttons so it moves with the draggable toolbar
-		const container = document.querySelector('#lib-df-buttons');
-		if (!container) return;
-		html.remove();
-		$(container).append(html);
-
-		html.find('li').on("click", (/**@type {JQuery.ClickEvent}*/event) => {
-			const element = $(event.currentTarget);
-			const name = element.attr('data-tool');
-
-			const tool = this.#_tools[name];
-			if (tool !== undefined) {
-				tool.onClick();
-				return;
-			}
-
-			const generalControl = this.#_generalControls[name];
-			if (generalControl !== undefined) generalControl.onClick();
-
-			const placementControl = this.#_placementControls[name];
-			if (placementControl !== undefined) placementControl.onClick();
-
-			const toolControl = CurvyWallToolManager.instance.activeTool?.getTools()[name];
-			if (toolControl !== undefined) {
-				if (!toolControl.toggleable) toolControl.onClick();
-				else toolControl.onClick(!toolControl.isActive());
-			}
-
-			this.render(false);
-		});
-	}
-
-	/**
-	 * @param {Application.CloseOptions} [options]
-	 * @returns {Promise<void>}
-	 */
-	close(options) {
-		if (!SETTINGS.get(CurvyWallsToolBar.PREF_PRESERVE)) {
-			this.#_closing = true;
+	close() {
+		this.#_element.remove();
+		if (!SETTINGS.get(CurvyWallsToolBar.PREF_PRESERVE))
 			CurvyWallToolManager.instance.mode = Mode.None;
+	}
+
+	/**
+	 * @param {string} name
+	 * @param {CurvyWallControl} control
+	 * @returns {HTMLLIElement}
+	 */
+	#_createButton(name, control) {
+		const button = document.createElement('li');
+		button.className = 'control-tool';
+		if (control.class) button.classList.add(control.class);
+		if (control.toggleable) {
+			button.classList.add('toggle');
+			button.classList.toggle('active', !!control.isActive());
 		}
-		return super.close(options);
+		button.dataset.tool = name;
+		button.title = game.i18n.localize(control.title);
+		const icon = document.createElement('i');
+		icon.className = control.icon;
+		button.append(icon);
+		return button;
+	}
+
+	/**@param {MouseEvent} event*/
+	#_onClick(event) {
+		const control = this.#_controls[event.target.closest('[data-tool]')?.dataset.tool];
+		if (!control) return;
+		if (control.toggleable) control.onClick(!control.isActive());
+		else control.onClick();
+		this.render();
+	}
+
+	/**@param {MouseEvent} event*/
+	#_onGripDown(event) {
+		if (event.button !== 0) return;
+		event.preventDefault();
+		const element = this.#_element;
+		const start = element.getBoundingClientRect();
+		const onMouseMove = (/**@type {MouseEvent}*/moveEvent) => {
+			element.style.left = (start.left + moveEvent.clientX - event.clientX) + 'px';
+			element.style.top = (start.top + moveEvent.clientY - event.clientY) + 'px';
+		};
+		const onMouseUp = () => {
+			document.removeEventListener('mousemove', onMouseMove);
+			document.removeEventListener('mouseup', onMouseUp);
+			const { left, top } = element.getBoundingClientRect();
+			SETTINGS.set(CurvyWallsToolBar.PREF_POSITION, { left, top });
+		};
+		document.addEventListener('mousemove', onMouseMove);
+		document.addEventListener('mouseup', onMouseUp);
+	}
+
+	async #_resetPosition() {
+		await SETTINGS.set(CurvyWallsToolBar.PREF_POSITION, null);
+		this.#_applyPosition();
+	}
+
+	#_applyPosition() {
+		const { left, top } = SETTINGS.get(CurvyWallsToolBar.PREF_POSITION) ?? DEFAULT_POSITION;
+		this.#_element.style.left = Math.clamp(left, 0, window.innerWidth - 50) + 'px';
+		this.#_element.style.top = Math.clamp(top, 0, window.innerHeight - 50) + 'px';
 	}
 }

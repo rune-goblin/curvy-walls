@@ -1,13 +1,33 @@
-#df-curvy-walls-tools {
+#curvy-walls-toolbar {
+	position: fixed;
+	z-index: 70;
 	display: flex;
 	flex-flow: row nowrap;
+	align-items: flex-start;
 }
-#df-curvy-walls-tools ol {
+#curvy-walls-toolbar .grip {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 12px;
+	min-height: 36px;
+	margin-right: 2px;
+	cursor: grab;
+	color: #666;
+	font-size: 12px;
+}
+#curvy-walls-toolbar .grip:hover {
+	color: #FFF;
+}
+#curvy-walls-toolbar .grip:active {
+	cursor: grabbing;
+}
+#curvy-walls-toolbar ol {
 	margin: 0 10px 0 0;
 	list-style: none;
 	padding: 0;
 }
-#df-curvy-walls-tools .control-tool {
+#curvy-walls-toolbar .control-tool {
 	width: 36px;
 	height: 36px;
 	box-sizing: content-box;
@@ -23,31 +43,31 @@
 	cursor: pointer;
 	padding: 0;
 }
-#df-curvy-walls-tools .control-tool:hover {
+#curvy-walls-toolbar .control-tool:hover {
 	color: #FFF;
 	border: 1px solid red;
 	border-bottom: 1px solid #ff6400;
 	box-shadow: 0 0 10px #ff6400;
 }
-#df-curvy-walls-tools .control-tool.toggle {
+#curvy-walls-toolbar .control-tool.toggle {
 	background: rgba(30, 0, 60, 0.5);
 	border: 1px solid #3b1893;
 }
-#df-curvy-walls-tools .control-tool.toggle:hover {
+#curvy-walls-toolbar .control-tool.toggle:hover {
 	background: rgba(60, 0, 120, 0.5);
 	box-shadow: 0 0 10px #9b8dff;
 }
-#df-curvy-walls-tools .control-tool.toggle.active {
+#curvy-walls-toolbar .control-tool.toggle.active {
+	color: #FFF;
 	background: rgba(60, 0, 120, 0.8);
 	box-shadow: 0 0 10px #9b8dff;
 }
-#df-curvy-walls-tools .cancel {
+#curvy-walls-toolbar .cancel {
 	background: rgba(128, 0, 0, 0.5);
 	box-shadow: 0 0 10px #a00;
 	border: 1px solid #a00;
-	margin-bottom: 8px;
 }
-#df-curvy-walls-tools .apply {
+#curvy-walls-toolbar .apply {
 	background: rgba(0, 128, 0, 0.5);
 	box-shadow: 0 0 10px #0a0;
 	border: 1px solid #0a0;
