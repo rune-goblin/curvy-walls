@@ -3,7 +3,10 @@
 	"version": "1.2.4",
 	"title": "Curvy Walls",
 	"description": "Creates wall segments along a Bezier Cubic or Quadratic curve, an ellipse, or a rectangle",
-	"authors": [ { "name": "flamewave000", "discord": "flamewave000", "url": "https://github.com/flamewave000" } ],
+	"authors": [
+		{ "name": "RuneGoblin", "url": "https://www.runegoblin.com/" },
+		{ "name": "flamewave000 (original author)", "url": "https://github.com/flamewave000" }
+	],
 	"compatibility": { "minimum": "13", "verified": "14" },
 	"relationships": {
 		"requires": [
