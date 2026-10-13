@@ -10,7 +10,7 @@ It differs from the original in three ways:
 
 - It installs under its own module ID, `curvy-walls`. Enable only one of the two modules in a world.
 - It bundles flamewave000's [DF Buttons](https://github.com/flamewave000/dragonflagon-fvtt/tree/master/lib-df-buttons) library, so it has no `lib-df-buttons` dependency.
-- RuneGoblin maintains it with AI assistance (Claude Code). The original follows a No-AI policy.
+- RuneGoblin maintains it with AI assistance (Claude Code). A No-AI version for Foundry v13 is available at the [original repo](https://github.com/flamewave000/dragonflagon-fvtt/tree/master/df-curvy-walls).
 
 ---
 
