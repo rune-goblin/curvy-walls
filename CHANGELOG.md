@@ -1,4 +1,45 @@
+# Curvy Walls
+
+## Release 1.2.4 (2026-10-13)
+- **FIX:** Handles drag again on Foundry v14 once a tool is placed, including handles that sit on an existing wall.
+- **FIX:** Walls take their type from the Foundry v14 wall palette, and new walls keep their thresholds and levels.
+- **FIX:** Fixed a crash at the end of a drag caused by the point-mapping overlay.
+- **FIX:** Fixed an error from the segment shortcuts when no tool is active.
+- **FIX:** Fixed the Rectangle tool leaking a preview wall on every render.
+- **FIX:** Fixed the body-drag regions of the Rectangle and Ellipse tools so the whole shape responds to a drag.
+- **FIX:** Fixed the Cubic tool's control handles breaking when both ends snap to the same point.
+- **UPDATE:** Removed unused code from the merged buttons library.
+- **UPDATE:** Added the fork notice, the Bezier.js MIT license, and author credits.
+
+## Release 1.2.3 (2026-10-06)
+- **FIX:** The canvas drag override now attaches to each scene's interaction manager, so handle drags keep working after a scene change or when the world starts without a drawn scene.
+
+## Release 1.2.2 (2026-05-02)
+- **NEW:** Escape cancels a placed tool. Foundry's default Escape behaviour applies when no tool is placed.
+
+## Release 1.2.1 (2026-05-02)
+- **UPDATE:** Verified for Foundry v14. The minimum is now Foundry v13.
+- **UPDATE:** Replaced APIs deprecated in Foundry v14 with `CONST.EDGE_SENSE_TYPES` and the namespaced `foundry.canvas.placeables.Wall`.
+
+## Release 1.1.2 (2026-03-18)
+- **FIX:** Fixed a `point.clone` error when starting a handle drag on Foundry v13.
+- **UPDATE:** Curve labels use the namespaced `PreciseText`.
+
+## Release 1.1.1 (2026-03-18)
+- **FIX:** Suppressed the libWrapper conflict warnings with Monk's Wall Enhancement.
+
+## Release 1.1.0 (2026-03-18)
+- **FIX:** Bezier handles respond to drags on Foundry v13. Hit-testing uses the mouse-down position, and drags reach the walls layer while the Select tool is active.
+
+## Release 1.0.0 (2026-03-17)
+- **NEW:** Forked from [DF Curvy Walls](https://github.com/flamewave000/dragonflagon-fvtt/tree/master/df-curvy-walls) 4.0.0 by flamewave000, under the new module id `curvy-walls`.
+- **UPDATE:** Merged Library: DF Module Buttons into the module. libWrapper is the only dependency.
+- **UPDATE:** Added Foundry v13 compatibility.
+- **UPDATE:** Moved the media assets into this repository.
+
 # DF Curvy Walls
+
+These releases belong to the original [DF Curvy Walls](https://github.com/flamewave000/dragonflagon-fvtt/tree/master/df-curvy-walls) module by flamewave000. Curvy Walls forked from Release 4.0.0.
 
 ## Release 4.0.0 (2025-02-24)
 - **UPDATE:** Migrated to v12.
