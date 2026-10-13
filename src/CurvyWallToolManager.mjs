@@ -39,6 +39,9 @@ const SENSE_TYPES = CONST.EDGE_SENSE_TYPES ?? CONST.WALL_SENSE_TYPES;
  * @returns {object} Wall data object
  */
 function getWallDataFromActiveTool(tool) {
+	// v14 moved the wall types out of the tools and into the wall palette.
+	const paletteData = canvas.walls.paletteCreateData;
+	if (paletteData) return foundry.utils.deepClone(paletteData);
 	if (tool === "clone" && canvas.walls._cloneType) return canvas.walls._cloneType;
 	const wallData = {
 		light: SENSE_TYPES.NORMAL,
@@ -74,12 +77,7 @@ class WallPool {
 	 * @returns {Wall}
 	 */
 	static acquire(wallData) {
-		const result = new foundry.canvas.placeables.Wall(new WallDocument(wallData, { parent: canvas.scene }));
-		wallData = structuredClone(wallData);
-		delete wallData._id;
-		result.document = foundry.utils.mergeObject(result.document, wallData);
-		delete result.parent;
-		return result;
+		return new foundry.canvas.placeables.Wall(new WallDocument(wallData, { parent: canvas.scene }));
 	}
 }
 
@@ -123,8 +121,9 @@ export class CurvyWallToolManager {
 	#_pointMapper = new PointMapper();
 
 	/**@type {number}*/
-	get segments() { return this.#_activeTool.segments; }
+	get segments() { return this.#_activeTool?.segments; }
 	set segments(value) {
+		if (!this.#_activeTool) return;
 		this.#_activeTool.segments = Math.clamp(value, 1, 64);
 		if (this.mode != Mode.None)
 			this.render();
@@ -259,6 +258,12 @@ export class CurvyWallToolManager {
 		self.activeTool.placeTool(point, self.#_previousToolData.get(self.#_mode));
 		self.render();
 	}
+	static _canDragLeftStart(wrapped, user, event) {
+		const self = CurvyWallToolManager.instance;
+		// v14 refuses any drag while the preview container has children, and the placed tool lives there.
+		if (self.mode != Mode.None && self.#wallsLayer.preview.children.length) return true;
+		return wrapped(user, event);
+	}
 	/**
 	 * @param {Function} wrapped
 	 * @param {PIXI.InteractionEvent} event
@@ -339,7 +344,19 @@ export class CurvyWallToolManager {
 	}
 
 	#graphicsContext = new PIXI.Graphics();
+	/**@type {string|null}*/ #wallDataKey = null;
 	render() {
+		this.#drawPreview();
+		this.#syncWallInteraction();
+	}
+
+	// Existing walls sit under the preview and would take pointer events meant for the handles.
+	#syncWallInteraction() {
+		const { objects, preview } = canvas.walls;
+		if (objects) objects.interactiveChildren = !preview?.children.length;
+	}
+
+	#drawPreview() {
 		this.#wallsLayer.preview.removeChildren();
 		if (this.currentlyMappingPoints) {
 			this.#_pointMapper.clearContext(this.#graphicsContext);
@@ -353,51 +370,31 @@ export class CurvyWallToolManager {
 		if (this.activeTool == null) return;
 		const pointData = this.activeTool?.getSegments(this.segments);
 		if (pointData.length == 0) return;
-		this.#walls.length;
 		/**@type {WallData}*/const wallData = getWallDataFromActiveTool(game.activeTool);
+		const wallDataKey = JSON.stringify(wallData);
+		if (wallDataKey !== this.#wallDataKey) this.#walls = [];
+		this.#wallDataKey = wallDataKey;
 
-		while (this.#walls.length > pointData.length - 1) {
-			const wall = this.#walls.pop();
-			this.#wallsLayer.preview.removeChild(wall);
-		}
-		if (pointData[0].x !== undefined) {
-			/**@type {PIXI.Point[]}*/const points = pointData;
-			for (let c = 0; c < points.length - 1; c++) {
+		/**@type {PIXI.Point[][]}*/
+		const segments = pointData[0].x !== undefined
+			? pointData.slice(1).map((point, i) => [pointData[i], point])
+			: pointData;
+		this.#walls.length = Math.min(this.#walls.length, segments.length);
+		segments.forEach(([a, b], i) => {
+			const c = [a.x, a.y, b.x, b.y];
+			if (i == this.#walls.length) {
 				/**@type {WallData}*/const data = structuredClone(wallData);
 				delete data._id;
-				data.c = [points[c].x, points[c].y, points[c + 1].x, points[c + 1].y];
-				if (c == this.#walls.length) {
-					this.#walls.push(WallPool.acquire(data));
-					this.#wallsLayer.preview.addChild(this.#walls[c]);
-					this.#walls[c].draw();
-				} else {
-					this.#walls[c].document = foundry.utils.mergeObject(this.#walls[c].document, data);
-					this.#wallsLayer.preview.addChild(this.#walls[c]);
-					this.#walls[c].refresh();
-				}
+				data.c = c;
+				this.#walls.push(WallPool.acquire(data));
+				this.#wallsLayer.preview.addChild(this.#walls[i]);
+				this.#walls[i].draw();
+			} else {
+				this.#walls[i].document.updateSource({ c });
+				this.#wallsLayer.preview.addChild(this.#walls[i]);
+				this.#walls[i].refresh();
 			}
-		}
-		else if (pointData[0][0].x !== undefined) {
-			/**@type {PIXI.Point[][]}*/const points = pointData;
-			if (this.#walls.length > points.length) {
-				const wall = this.#walls.pop();
-				this.#wallsLayer.preview.removeChild(wall);
-			}
-			for (let c = 0; c < points.length; c++) {
-				/**@type {WallData}*/const data = structuredClone(wallData);
-				delete data._id;
-				data.c = [points[c][0].x, points[c][0].y, points[c][1].x, points[c][1].y];
-				if (c == this.#walls.length) {
-					this.#walls.push(WallPool.acquire(data));
-					this.#wallsLayer.preview.addChild(this.#walls[c]);
-					this.#walls[c].draw();
-				} else {
-					this.#walls[c].document = foundry.utils.mergeObject(this.#walls[c].document, data);
-					this.#wallsLayer.preview.addChild(this.#walls[c]);
-					this.#walls[c].refresh();
-				}
-			}
-		}
+		});
 
 		this.activeTool.clearContext(this.#graphicsContext);
 		this.#graphicsContext.removeChildren().forEach(x => x.destroy());
@@ -411,17 +408,22 @@ export class CurvyWallToolManager {
 	init() {
 		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.placeables.Wall.prototype._onDragLeftStart', (/**@type {any}*/wrapper,/**@type {any[]}*/...args) => {
 			this.clearTool();
-			wrapper(...args);
+			return wrapper(...args);
 		}, 'WRAPPER');
 		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype.clearPreviewContainer', (/**@type {Function}*/wrapped) => {
 			this.clearTool();
-			return wrapped();
+			// Foundry calls _onDragEnd on every preview child, which the point-mapping overlay lacks.
+			this.#graphicsContext.parent?.removeChild(this.#graphicsContext);
+			const result = wrapped();
+			this.#syncWallInteraction();
+			return result;
 		}, 'WRAPPER');
 	}
 
 	patchWallsLayer() {
 		this.#wallsLayer = canvas.walls;
 		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._onClickLeft', CurvyWallToolManager._onClickLeft, 'MIXED');
+		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._canDragLeftStart', CurvyWallToolManager._canDragLeftStart, 'MIXED');
 		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._onDragLeftStart', CurvyWallToolManager._onDragLeftStart, 'MIXED');
 		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._onDragLeftMove', CurvyWallToolManager._onDragLeftMove, 'MIXED');
 		libWrapper.register(SETTINGS.MOD_NAME, 'foundry.canvas.layers.WallsLayer.prototype._onDragLeftDrop', CurvyWallToolManager._onDragLeftDrop, 'MIXED');
@@ -476,28 +478,10 @@ export class CurvyWallToolManager {
 	 * @returns {Record<string, unknown>[]}
 	 */
 	#_getCurrentWallData() {
-		return this.#walls
-			.map(x => ({
-				c: x.document.c,
-				light: x.document.light,
-				move: x.document.move,
-				sight: x.document.sight,
-				sound: x.document.sound,
-				dir: x.document.dir,
-				door: x.document.door,
-				ds: x.document.ds,
-				flags: x.document.flags
-			}));
+		return this.#walls.map(x => {
+			const data = x.document.toObject();
+			delete data._id;
+			return data;
+		});
 	}
 }
-/*
-	c: [x0: number, y0: number, x1: number, y1: number];
-	light: foundry.CONST.WALL_SENSE_TYPES;
-	move: foundry.CONST.WALL_MOVEMENT_TYPES;
-	sight: foundry.CONST.WALL_SENSE_TYPES;
-	sound: foundry.CONST.WALL_SENSE_TYPES;
-	dir: foundry.CONST.WALL_DIRECTIONS;
-	door: foundry.CONST.WALL_DOOR_TYPES;
-	ds: foundry.CONST.WALL_DOOR_STATES;
-	flags: ConfiguredFlags<'Wall'>;
-*/
