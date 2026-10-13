@@ -4,12 +4,13 @@
 
 ![Curvy Walls Banner](.assets/df-curvy-walls/banner.png)
 
-This is a fork of the original DF Curvy Walls module written by [Flamewave000](https://github.com/flamewave000). The original source lives in the [dragonflagon-fvtt](https://github.com/flamewave000/dragonflagon-fvtt) repository:
+Curvy Walls is a fork of [DF Curvy Walls](https://github.com/flamewave000/dragonflagon-fvtt/tree/master/df-curvy-walls) by [flamewave000](https://github.com/flamewave000), maintained by RuneGoblin for Foundry VTT v13 and v14.
 
-- [df-curvy-walls](https://github.com/flamewave000/dragonflagon-fvtt/tree/master/df-curvy-walls) (DF Curvy Walls)
-- [lib-df-buttons](https://github.com/flamewave000/dragonflagon-fvtt/tree/master/lib-df-buttons) (DF Buttons)
+It differs from the original in three ways:
 
-Due to Foundry's policy on AI-supported code, we have merged the DF Buttons library into this repository. PRs have been opened to the original repository for the upstream author.
+- It installs under its own module ID, `curvy-walls`. Enable only one of the two modules in a world.
+- It bundles flamewave000's [DF Buttons](https://github.com/flamewave000/dragonflagon-fvtt/tree/master/lib-df-buttons) library, so it has no `lib-df-buttons` dependency.
+- RuneGoblin maintains it with AI assistance (Claude Code). The original follows a No-AI policy.
 
 ---
 
